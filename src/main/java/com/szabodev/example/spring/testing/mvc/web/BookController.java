@@ -18,10 +18,10 @@ import java.util.Optional;
 @Slf4j
 public class BookController {
 
-    private static final String BOOK_BOOKS = "book/books";
-    private static final String BOOK_BOOK_FORM = "book/book-form";
-    private static final String REDIRECT_BOOKS = "redirect:/books";
-    private static final String NEW_BOOK_MODEL = "newBook";
+    static final String BOOK_BOOKS = "book/books";
+    static final String BOOK_BOOK_FORM = "book/book-form";
+    static final String REDIRECT_BOOKS = "redirect:/books";
+    static final String EDITED_BOOK_MODEL = "editedBook";
 
     private final BookService bookService;
 
@@ -33,7 +33,7 @@ public class BookController {
 
     @GetMapping("/add-book")
     public String bookFormForNew(Model model) {
-        model.addAttribute(NEW_BOOK_MODEL, Book.builder().build());
+        model.addAttribute(EDITED_BOOK_MODEL, Book.builder().build());
         addStaticVariables(model);
         return BOOK_BOOK_FORM;
     }
@@ -51,7 +51,7 @@ public class BookController {
     public String bookFormForEdit(Model model, @PathVariable Long id) {
         Optional<Book> byId = bookService.findById(id);
         if (byId.isPresent()) {
-            model.addAttribute(NEW_BOOK_MODEL, byId.get());
+            model.addAttribute(EDITED_BOOK_MODEL, byId.get());
             addStaticVariables(model);
             return BOOK_BOOK_FORM;
         } else {
@@ -60,7 +60,7 @@ public class BookController {
     }
 
     @PostMapping("/books")
-    public String saveBook(@ModelAttribute(NEW_BOOK_MODEL) Book book) {
+    public String saveBook(@ModelAttribute(EDITED_BOOK_MODEL) Book book) {
         Book saved = bookService.save(book);
         log.info("Book saved: {}", saved);
         return REDIRECT_BOOKS;
