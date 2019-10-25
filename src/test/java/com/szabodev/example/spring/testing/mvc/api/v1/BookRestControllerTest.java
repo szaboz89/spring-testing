@@ -65,4 +65,14 @@ class BookRestControllerTest {
                 .andReturn();
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
+
+    @Test
+    void testFindByIdNotFound() throws Exception {
+        given(bookService.findById(1L)).willReturn(Optional.empty());
+
+        MvcResult mvcResult = mockMvc.perform(get(BookRestController.BASE_URL + "/{id}", book.getId()))
+                .andExpect(status().isNotFound())
+                .andReturn();
+        System.out.println(mvcResult.getResponse().getContentAsString());
+    }
 }
