@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,10 @@ public class Book {
 
     @Enumerated(value = EnumType.STRING)
     private BookType bookType;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private OffsetDateTime createdDate;
 
     public enum BookType {
         CRIME, DRAMA, ROMANCE;

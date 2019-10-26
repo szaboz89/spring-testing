@@ -1,5 +1,9 @@
 package com.szabodev.example.spring.testing.mvc.api.v1;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.szabodev.example.spring.testing.mvc.model.Book;
 import com.szabodev.example.spring.testing.mvc.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -37,8 +43,9 @@ class BookRestControllerTest {
 
     @BeforeEach
     void setUp() {
-        book = Book.builder().id(1L).title("Test").bookType(Book.BookType.CRIME).build();
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        book = Book.builder().id(1L).title("Test").bookType(Book.BookType.CRIME).createdDate(OffsetDateTime.now()).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setMessageConverters(jackson2HttpMessageConverter()).build();
     }
 
     @Test
@@ -74,5 +81,15 @@ class BookRestControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
         System.out.println(mvcResult.getResponse().getContentAsString());
+    }
+
+    private MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, true);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        objectMapper.registerModule(new JavaTimeModule());
+        return new MappingJackson2HttpMessageConverter(objectMapper);
     }
 }
