@@ -81,4 +81,20 @@ class BookServiceImplTest {
         // then
         then(bookRepository).should().delete(book);
     }
+
+    @Test
+    void findByType() {
+        // given
+        Book.BookType bookTypeToSearch = Book.BookType.CRIME;
+        Book book1 = Book.builder().title("Test1").bookType(bookTypeToSearch).build();
+        Book book2 = Book.builder().title("Test2").bookType(bookTypeToSearch).build();
+        given(bookRepository.findByBookType(bookTypeToSearch)).willReturn(Arrays.asList(book1, book2));
+
+        // when
+        List<Book> books = bookService.findByType(bookTypeToSearch);
+
+        // then
+        then(bookRepository).should(times(1)).findByBookType(bookTypeToSearch);
+        assertThat(books).hasSize(2);
+    }
 }

@@ -14,4 +14,6 @@ public interface BookService {
     List<Book> findAll();
 
     void delete(Book book);
+
+    List<Book> findByType(Book.BookType bookType);
 }
