@@ -4,11 +4,14 @@ import com.szabodev.example.spring.testing.mvc.model.Book;
 import com.szabodev.example.spring.testing.mvc.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -23,10 +26,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(RestDocumentationExtension.class)
+@AutoConfigureRestDocs
 @WebMvcTest(BookRestController.class)
 class BookRestControllerWebMvcTest {
 
@@ -52,6 +61,19 @@ class BookRestControllerWebMvcTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(book.getId().intValue())))
                 .andExpect(jsonPath("$.title", is(book.getTitle())))
+                .andDo(
+                        document("v1/books/id",
+                                pathParameters(
+                                        parameterWithName("id").description("Id of desired book to get.")
+                                ),
+                                responseFields(
+                                        fieldWithPath("id").description("Id of the book"),
+                                        fieldWithPath("title").description("Title of the book"),
+                                        fieldWithPath("bookType").description("Type of the book"),
+                                        fieldWithPath("createdDate").description("Date Created")
+                                )
+                        )
+                )
                 .andReturn();
         System.out.println(mvcResult.getResponse().getContentAsString());
     }
@@ -65,7 +87,22 @@ class BookRestControllerWebMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id", is(book.getId().intValue())));
+                .andExpect(jsonPath("$[0].id", is(book.getId().intValue())))
+                .andDo(
+                        document("v1/books",
+                                requestParameters(
+                                        parameterWithName("bookType").description("Type of the desired books to get")
+                                ),
+                                responseFields(
+                                        fieldWithPath("[]").description("An array of books"))
+                                        .andWithPrefix("[].",
+                                                fieldWithPath("id").description("Id of the book"),
+                                                fieldWithPath("title").description("Title of the book"),
+                                                fieldWithPath("bookType").description("Type of the book"),
+                                                fieldWithPath("createdDate").description("Date Created")
+                                        )
+                        )
+                );
     }
 
     @Test

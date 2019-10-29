@@ -1,0 +1,49 @@
+= Spring Testing - Book Service Endpoints
+Zoltan Szabo;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+
+== GET /v1/books
+
+CURL request:
+
+include::{snippets}/v1/books/curl-request.adoc[]
+
+HTTP request:
+
+include::{snippets}/v1//books/http-request.adoc[]
+
+Request parameters:
+
+include::{snippets}/v1//books/request-parameters.adoc[]
+
+HTTP response:
+
+include::{snippets}/v1//books/http-response.adoc[]
+
+Response Fields:
+
+include::{snippets}/v1/books/response-fields.adoc[]
+
+== GET /v1/books/{id}
+
+CURL request:
+
+include::{snippets}/v1/books/id/curl-request.adoc[]
+
+HTTP request:
+
+include::{snippets}/v1/books/id/http-request.adoc[]
+
+Path parameters:
+
+include::{snippets}/v1/books/id/path-parameters.adoc[]
+
+HTTP response:
+
+include::{snippets}/v1//books/id/http-response.adoc[]
+
+Response Fields:
+
+include::{snippets}/v1/books/id/response-fields.adoc[]
