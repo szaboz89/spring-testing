@@ -16,8 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceImplTest {
@@ -80,6 +79,15 @@ class BookServiceImplTest {
 
         // then
         then(bookRepository).should().delete(book);
+    }
+
+    @Test
+    void deleteNull() {
+        // when
+        bookService.delete(null);
+
+        // then
+        then(bookRepository).should(never()).delete(any());
     }
 
     @Test

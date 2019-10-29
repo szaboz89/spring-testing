@@ -1,5 +1,6 @@
 package com.szabodev.example.spring.testing.mvc.api.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.szabodev.example.spring.testing.mvc.model.Book;
 import com.szabodev.example.spring.testing.mvc.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -44,6 +44,9 @@ class BookRestControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Book book;
 
@@ -107,20 +110,36 @@ class BookRestControllerWebMvcTest {
 
     @Test
     void testSave() throws Exception {
+        Book bookToSave = Book.builder().title(book.getTitle()).bookType(book.getBookType()).build();
         ArgumentCaptor<Book> bookArgumentCaptor = ArgumentCaptor.forClass(Book.class);
         given(bookService.save(bookArgumentCaptor.capture())).willReturn(book);
 
         mockMvc.perform(post(BookRestController.BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{ \"id\": 1, \"title\": \"Test\", \"bookType\": \"CRIME\" }"))
+                .content(objectMapper.writeValueAsString(bookToSave)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.title", is("Test")));
+                .andExpect(jsonPath("$.id", is(book.getId().intValue())))
+                .andExpect(jsonPath("$.title", is(book.getTitle())))
+                .andDo(
+                        document("v1/books-SAVE",
+                                requestFields(
+                                        fieldWithPath("id").ignored(),
+                                        fieldWithPath("title").description("Title of the book"),
+                                        fieldWithPath("bookType").description("Type of the book"),
+                                        fieldWithPath("createdDate").ignored()
+                                ),
+                                responseFields(
+                                        fieldWithPath("id").description("Id of the book"),
+                                        fieldWithPath("title").description("Title of the book"),
+                                        fieldWithPath("bookType").description("Type of the book"),
+                                        fieldWithPath("createdDate").description("Date Created")
+                                )
+                        )
+                );
 
         then(bookService).should(times(1)).save(any(Book.class));
-        assertThat(bookArgumentCaptor.getValue().getId()).isEqualTo(1L);
-        assertThat(bookArgumentCaptor.getValue().getTitle()).isEqualTo("Test");
-        assertThat(bookArgumentCaptor.getValue().getBookType()).isEqualTo(Book.BookType.CRIME);
+        assertThat(bookArgumentCaptor.getValue().getTitle()).isEqualTo(book.getTitle());
+        assertThat(bookArgumentCaptor.getValue().getBookType()).isEqualTo(book.getBookType());
     }
 }

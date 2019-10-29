@@ -47,3 +47,25 @@ include::{snippets}/v1//books/id/http-response.adoc[]
 Response Fields:
 
 include::{snippets}/v1/books/id/response-fields.adoc[]
+
+== POST /v1/books
+
+CURL request:
+
+include::{snippets}/v1/books-SAVE/curl-request.adoc[]
+
+HTTP request:
+
+include::{snippets}/v1/books-SAVE/http-request.adoc[]
+
+Request fields:
+
+include::{snippets}/v1/books-SAVE/request-fields.adoc[]
+
+HTTP response:
+
+include::{snippets}/v1//books-SAVE/http-response.adoc[]
+
+Response Fields:
+
+include::{snippets}/v1/books-SAVE/response-fields.adoc[]
