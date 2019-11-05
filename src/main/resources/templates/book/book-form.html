@@ -15,7 +15,7 @@
 
 <h2>Add book</h2>
 
-<form th:action="@{/books}" th:object="${newBook}" method="post">
+<form th:action="@{/books}" th:object="${editedBook}" method="post">
     <input type="hidden" id="id" th:field="*{id}"/>
     <label for="title">Title</label><br/>
     <input id="title" name="title" type="text" th:field="*{title}"/><br/>
